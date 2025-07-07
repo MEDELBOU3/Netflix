@@ -32,8 +32,8 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "YOUR_GITHUB_USERNAME",
-      "repo": "YOUR_GITHUB_REPOSITORY_NAME"
+      "owner": "MEDELBOU3",
+      "repo": "Netflix"
     }
   }
 }
