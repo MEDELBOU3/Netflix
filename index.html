@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net-Clone Pro X</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+<style>
+
+   
+/* ==========================================================================
+   NETFLIX CLONE - COMPLETE & FINAL STYLESHEET
+   ========================================================================== */
+
+/* ==========================================================================
+   1. GLOBAL & THEME SETUP (CSS VARIABLES)
+   ========================================================================== */
+:root {
+    --primary-background: #141414;
+    --card-background: #181818;
+    --header-background: #141414;
+    --primary-text: #e5e5e5;
+    --secondary-text: #a0a0a0;
+    --brand-red: #e50914;
+    --success-green: #46d369;
+    --link-hover: #b3b3b3;
+    --header-height: 68px;
+    --standard-padding-x: 4vw;
+    --card-border-radius: 4px;
+    --transition-fast: 0.2s ease;
+    --transition-medium: 0.4s cubic-bezier(0.5, 0, 0.1, 1);
+}
+
+/* ==========================================================================
+   2. BASE & RESET STYLES
+   ========================================================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    background-color: var(--primary-background);
+    color: var(--primary-text);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--primary-background); }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+.posters-container, #search-results {
+    -ms-overflow-style: none; scrollbar-width: none;
+}
+.posters-container::-webkit-scrollbar, #search-results::-webkit-scrollbar {
+    display: none;
+}
+
+/* ==========================================================================
+   3. HEADER & NAVIGATION
+   ========================================================================== */
+.header {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: var(--header-height);
+    padding: 0 var(--standard-padding-x);
+    z-index: 1000;
+    background-color: transparent;
+    transition: background-color var(--transition-medium);
+}
+.header.scrolled {
+    background-color: var(--header-background);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.logo { height: 35px; cursor: pointer; }
+.nav-link {
+    color: var(--primary-text);
+    font-size: 1rem;
+    margin-right: 1.25rem;
+    transition: color var(--transition-fast);
+}
+.nav-link:hover, .nav-link.active {
+    color: var(--link-hover);
+    font-weight: 500;
+}
+.header .navbar-nav { gap: 0.5rem; }
+.header .nav-item { display: flex; align-items: center; }
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    --bs-dropdown-min-width: 12rem;
+    margin-top: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.dropdown-item { transition: background-color var(--transition-fast); }
+.dropdown-item:hover, .dropdown-item:focus { background-color: rgba(255, 255, 255, 0.1); }
+
+.search-icon { font-size: 1.5rem; cursor: pointer; transition: transform var(--transition-fast); }
+.search-icon:hover { transform: scale(1.1); }
+
+/* ==========================================================================
+   4. HERO BANNER
+   ========================================================================== */
+.hero-banner {
+    height: 95vh; background-size: cover;
+    background-position: center 20%;
+    position: relative; display: flex; align-items: center;
+}
+.hero-fade { height: 10rem; background-image: linear-gradient(180deg, transparent, var(--primary-background)); }
+.text-shadow { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7); }
+
+/* ==========================================================================
+   5. MOVIE ROWS & CARDS
+   ========================================================================== */
+.movie-rows-container { padding-top: 2rem; position: relative; z-index: 10; }
+.movie-row-wrapper { margin-bottom: 3rem; }
+.row-title {
+    font-size: 1.5rem; font-weight: 700;
+    margin-bottom: 1rem;
+    padding-left: var(--standard-padding-x);
+}
+.posters-container {
+    display: flex; overflow-x: auto; overflow-y: hidden;
+    padding: 0 var(--standard-padding-x);
+    padding: 0.8rem;
+    gap: 0.75rem;
+}
+.slider-arrow {
+    position: absolute; top: 0; bottom: 0;
+    width: var(--standard-padding-x);
+    background-color: rgba(20, 20, 20, 0.5);
+    color: white; display: flex; align-items: center;
+    justify-content: center; font-size: 2rem; cursor: pointer;
+    z-index: 20; opacity: 0;
+    transition: opacity var(--transition-medium);
+}
+.position-relative:hover .slider-arrow { opacity: 1; }
+.slider-arrow.left { left: 0; }
+.slider-arrow.right { right: 0; }
+
+.backdrop-card {
+    position: relative; flex-shrink: 0;
+    width: 24vw; max-width: 320px; min-width: 220px;
+    aspect-ratio: 16 / 9; border-radius: var(--card-border-radius);
+    overflow: hidden; cursor: pointer; background-color: #2f2f2f;
+    transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+}
+.backdrop-card:hover {
+    transform: scale(1.05); z-index: 15;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.backdrop-card:focus-visible { outline: 2px solid var(--brand-red); outline-offset: 2px; }
+.backdrop-img { width: 100%; height: 100%; object-fit: cover; transition: opacity var(--transition-medium); }
+.card-info-panel {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.8));
+    padding: 1rem;
+    transform: translateY(100%); opacity: 0;
+    transition: transform var(--transition-medium), opacity var(--transition-medium);
+}
+.backdrop-card:hover .card-info-panel { transform: translateY(0); opacity: 1; }
+.backdrop-card:hover .backdrop-img { opacity: 0.7; }
+.hover-actions { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.card-info-panel .card-title {
+    font-size: 1rem; font-weight: 700; color: var(--primary-text);
+    margin-bottom: 0.5rem; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.card-meta { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--secondary-text); }
+.card-meta .text-success { font-weight: 700; }
+
+/* "Trending Now" Poster Row Styles */
+.posters-container.poster-row {
+    align-items: flex-end;
+    padding-left: calc(var(--standard-padding-x) + 3rem);
+    gap: 4rem; 
+}
+.poster-card {
+    position: relative; 
+    display: inline-block;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+.poster-card:hover { transform: scale(1.05); }
+
+.poster-number {
+    position: absolute;
+    /* CHANGE: Position to the bottom-left corner OF THE CARD */
+    left: -19px;
+    bottom: 0px;
+    z-index: 3; /* Ensure it's on top of the image */
+
+    /* CHANGE: Make the number smaller and style it for on-card visibility */
+    font-size: 7rem; 
+    font-weight: 800;
+    line-height: 0.9;
+    -webkit-text-stroke: 4px var(--primary-text); 
+    color: transparent; /* Solid white color */
+    /* Add a strong shadow to make it pop off the image */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.7); 
+    /* Remove the text stroke as it's not needed for this style */
+
+}
+
+.poster-img {
+    position: relative; 
+    z-index: 2; /* Image is below the number */
+    
+    width: 150px;
+    aspect-ratio: 2 / 3;
+    border-radius: var(--card-border-radius);
+    object-fit: cover;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+
+
+/* ==========================================================================
+   6. BUTTONS & INTERACTIVE ELEMENTS
+   ========================================================================== */
+.btn-play, .my-list-btn {
+    background-color: rgba(42, 42, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    color: white; width: 36px; height: 36px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition-fast);
+}
+.btn-play:hover, .my-list-btn:hover { background-color: white; color: black; border-color: white; }
+.btn-play:focus-visible, .my-list-btn:focus-visible { outline: 2px solid var(--brand-red); }
+.btn-play { background-color: white; color: black; border-color: white; }
+.btn-play:hover { background-color: rgba(255,255,255,0.8); }
+.my-list-btn.icon-only-btn {
+    width: 50px; height: 50px; background-color: rgba(42, 42, 42, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+}
+.my-list-btn.icon-only-btn i { font-size: 1.25rem; }
+
+/* ==========================================================================
+   7. DETAILS, CAST & EPISODE PAGES
+   ========================================================================== */
+.details-view-container {
+    min-height: 100vh; background-size: cover;
+    background-position: center 20%; position: relative;
+}
+.details-overlay {
+    background: rgba(20, 20, 20, 0.8); position: absolute;
+    top: 0; left: 0; width: 100%; min-height: 100%;
+    padding: calc(var(--header-height) + 20px) var(--standard-padding-x) 50px;
+}
+.details-poster {
+    width: 100%; max-width: 300px; border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.details-section { margin-top: 4rem; }
+
+/* Cast Biography Styling */
+.biography-container { position: relative;}
+.biography-text {
+    font-size: 1rem; font-weight: 300; line-height: 1.6;
+    color: var(--primary-text);
+    max-height: 125px;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+}
+.biography-text::after {
+    content: '';
+    position: absolute;
+    bottom: 2rem;
+    left: 0; right: 0;
+    height: 50px;
+    background: linear-gradient(to top, var(--primary-background) 20%, transparent);
+    transition: opacity var(--transition-fast);
+}
+.biography-text.expanded { max-height: 1000px; transition: max-height 0.5s ease-in; background: linear-gradient(to top, var(--primary-background) 20%, transparent);}
+.biography-text.expanded::after {opacity: 0; }
+.read-more-btn {
+    background: none; border: none;
+    color: var(--secondary-text); font-weight: bold;
+    cursor: pointer; padding: 0.5rem 0;
+    position: absolute; bottom: 0; left: 0;
+}
+.read-more-btn:hover { color: var(--primary-text); }
+
+/* Cast List Styling */
+.cast-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 3rem; 
+}
+.cast-member {
+    text-align: center; cursor: pointer;
+    transition: transform var(--transition-fast);
+    width: 100%; height: auto;
+}
+.cast-member:hover { transform: scale(1.05); }
+.cast-member:focus-visible { outline: 2px solid var(--brand-red); outline-offset: 4px; border-radius: 8px; }
+.cast-img {
+    width: 100%; max-width: 160px; 
+    margin-left: auto; margin-right: auto;
+    aspect-ratio: 1 / 1; object-fit: cover;
+    border-radius: 50%; margin-bottom: 1rem; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: box-shadow var(--transition-fast);
+}
+.cast-member:hover .cast-img { box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+.cast-member p, .cast-member small {
+    width: 100%; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.cast-member p { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.25rem; }
+.cast-member small { color: var(--secondary-text); font-size: 0.9rem; }
+
+/* Episode Styles */
+.season-selector { max-width: 400px; }
+.episode-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.episode-item-link {
+    display: block; transition: background-color var(--transition-fast);
+    border-radius: var(--card-border-radius);
+}
+.episode-item-link:hover, .episode-item-link:focus-visible { background-color: rgba(255, 255, 255, 0.1); }
+.episode-item-link:focus-visible { outline: none; }
+.episode-item { display: flex; align-items: center; gap: 1.5rem; padding: 1rem; }
+.episode-item .text, .episode-item .text-small { color: var(--secondary-text) !important; min-width: 20px; }
+.episode-img-container { position: relative; width: 180px; flex-shrink: 0; }
+.episode-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--card-border-radius); }
+.episode-play-icon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 2.5rem; color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 10px black; opacity: 0; transition: opacity var(--transition-fast);
+}
+.episode-item-link:hover .episode-play-icon, .episode-item-link:focus-visible .episode-play-icon { opacity: 1; }
+.episode-overview { color: var(--secondary-text); font-size: 0.9rem; }
+.episode-runtime { color: var(--secondary-text); }
+
+/* ==========================================================================
+   8. MY LIST, GENRE, SEARCH, PLAYER & MISC
+   ========================================================================== */
+#my-list-view, .view, .genre-view { padding-top: var(--header-height); }
+#my-list-view .container-fluid, .genre-view {
+    padding: 2rem var(--standard-padding-x) 3rem;
+}
+.my-list-title, .genre-title {
+    font-size: 2.5rem; font-weight: 700;
+    margin-bottom: 2rem;
+}
+.genre-title { border-left: 5px solid var(--brand-red); padding-left: 1rem; }
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+#my-list-view .grid-container { gap: 1.5rem; }
+
+.empty-list-message {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center;
+    color: var(--secondary-text); min-height: 60vh;
+}
+.empty-list-message i { font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.5; }
+.empty-list-message p { font-size: 1.5rem; font-weight: 500; color: var(--primary-text); margin-bottom: 0.5rem; }
+.empty-list-message span { font-size: 1rem; max-width: 400px; }
+
+/* Search and Player Styles */
+#search-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.95); z-index: 2000;
+    display: flex; flex-direction: column; padding: 2rem;
+    backdrop-filter: blur(5px);
+}
+#close-search-btn { align-self: flex-end; cursor: pointer; margin-bottom: 1rem; transition: transform var(--transition-fast); }
+#close-search-btn:hover { transform: scale(1.1); }
+#search-input {
+    width: 100%; max-width: 800px; margin: 0 auto 2rem auto;
+    background: transparent; border: none; border-bottom: 2px solid white;
+    color: white; font-size: 2.5rem; text-align: center; outline: none; padding: 0.5rem 0;
+}
+#search-input::placeholder { color: rgba(255,255,255,0.4); }
+#search-results { flex-grow: 1; overflow-y: auto; }
+.player-view { height: 100vh; width: 100vw; background: black; }
+.player-header { padding: 1rem 1.5rem; }
+.player-container { width: 100%; height: 100%; }
+.player-container iframe { width: 100%; height: 100%; border: none; }
+
+.skeleton {
+    background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite linear;
+    border-radius: var(--card-border-radius);
+}
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ==========================================================================
+   9. RESPONSIVE DESIGN (MOBILE-FIRST)
+   ========================================================================== */
+/* --- Mobile (Default Styles) --- */
+:root { --standard-padding-x: 1rem; }
+.d-none.d-md-block { display: none !important; }
+.details-overlay {
+    background: linear-gradient(180deg, transparent 20%, rgba(20, 20, 20, 0.8) 60%, rgba(20, 20, 20, 1) 100%);
+    padding-top: 50vh;
+}
+.details-poster { max-width: 150px; }
+.card-info-panel { padding: 0.75rem; }
+.card-info-panel .card-title { font-size: 0.9rem; }
+.episode-img-container { width: 120px; }
+#search-input { font-size: 1.5rem; }
+#my-list-view .grid-container { gap: 1rem; }
+.posters-container.poster-row { gap: 3rem; padding-left: calc(var(--standard-padding-x) + 2rem); }
+.poster-number { font-size: 6rem; bottom: -10px; transform: translateX(-50%); -webkit-text-stroke-width: 3px; }
+.poster-img { width: 100px; }
+.cast-list { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+.cast-img { max-width: 120px; }
+
+/* --- Tablet (min-width: 768px) --- */
+@media (min-width: 768px) {
+    :root { --standard-padding-x: 3.5rem; }
+    .d-none.d-md-block { display: block !important; }
+    .details-overlay {
+        background: linear-gradient(90deg, rgba(20, 20, 20, 1) 15%, rgba(20, 20, 20, 0.8) 50%, rgba(20, 20, 20, 0.5) 100%);
+        padding: calc(var(--header-height) + 50px) var(--standard-padding-x) 50px;
+    }
+    .details-poster { max-width: 300px; }
+    .grid-container { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    #search-input { font-size: 2.5rem; }
+    .cast-list { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .cast-img { max-width: 160px; }
+}
+
+
+/* Responsive adjustments for the new style */
+@media (max-width: 767px) {
+    .posters-container.poster-row {
+        gap: 0.75rem;
+    }
+    .poster-number {
+        font-size: 2rem;
+        left: 6px;
+        bottom: 6px;
+    }
+    .poster-img {
+        width: 100px;
+    }
+}
+
+/* --- Desktop (min-width: 992px) --- */
+@media (min-width: 992px) {
+    .my-list-title { font-size: 2.5rem; }
+    .cast-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    .cast-img { max-width: 180px; }
+}
+
+.row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: var(--padding-x);
+    margin-bottom: 1.5rem;
+}
+
+.row-title {
+    margin-bottom: 0; /* Remove margin as it's now on the header */
+}
+
+.view-more-link {
+    color: var(--secondary-text);
+    font-weight: var(--font-weight-bold);
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.movie-row-wrapper:hover .view-more-link {
+    opacity: 1;
+}
+
+.view-more-link:hover {
+    color: var(--primary-text);
+    text-decoration: underline;
+}
+
+.view-more-link i {
+    font-size: 0.7rem;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+}
+
+.category-view {
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.category-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: var(--font-weight-black);
+    margin-bottom: 2rem;
+    border-left: 5px solid var(--brand-red);
+    padding-left: 1.5rem;
+}
+
+/* Ensure skeleton cards have the correct aspect ratio in the grid */
+.grid-container .backdrop-card.skeleton {
+    aspect-ratio: 16 / 9;
+}
+
+#load-more-container {
+    padding: 2rem 0;
+}
+</style>
+
+</head>
+<body>
+  
+    <header id="main-header" class="header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Logonetflix.png" alt="Logo" class="logo">
+            
+            <nav class="d-none d-lg-flex ms-4">
+                <ul class="navbar-nav d-flex flex-row">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#/home">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="moviesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Movies
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="moviesDropdown" id="movie-genre-list">
+                            <!-- Movie genres will be populated here by JS -->
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="tvDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            TV Shows
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="tvDropdown" id="tv-genre-list">
+                            <!-- TV genres will be populated here by JS -->
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#/mylist">My List</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="d-flex align-items-center">
+            <i class="fas fa-search search-icon" id="search-icon"></i>
+        </div>
+    </header>
+
+    <main id="app-container"></main>
+
+    <div id="search-overlay" class="d-none">
+        <i class="fas fa-times fa-2x" id="close-search-btn" style="cursor:pointer; align-self: flex-end;"></i>
+        <input type="text" id="search-input" placeholder="Search for titles...">
+        <div id="search-results"></div>
+    </div>
+    
+    <!-- Trailer Modal -->
+    <div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="trailer-iframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const App = {
+        config: {
+            API_KEY: '431fb541e27bceeb9db2f4cab69b54e1',
+            API_BASE_URL: 'https://api.themoviedb.org/3',
+            IMAGE_BASE_URL: 'https://image.tmdb.org/t/p/w500',
+            BACKDROP_BASE_URL: 'https://image.tmdb.org/t/p/w1280',
+            STREAMING_BASE_URL: 'https://vidsrc.to/embed/',
+            FALLBACK_IMAGE: 'https://via.placeholder.com/500x281.png?text=Image+Not+Available',
+            ROW_CONFIG: [
+                { title: 'Trending Now', endpoint: '/trending/all/week' },
+                { title: 'Top Rated Movies', endpoint: '/movie/top_rated' },
+                { title: 'Action & Adventure', endpoint: '/discover/movie?with_genres=28' },
+                { title: 'Popular TV Shows', endpoint: '/tv/popular' },
+                { title: 'Comedy Movies', endpoint: '/discover/movie?with_genres=35' },
+            ]
+        },
+        state: { 
+            myList: [], 
+            searchDebounce: null, 
+            trailerModal: null, 
+            movieGenres: [], 
+            tvGenres: [] 
+        },
+
+        init() {
+            if (!this.config.API_KEY || this.config.API_KEY === 'YOUR_API_KEY_HERE') {
+                this.render('<div class="d-flex align-items-center justify-content-center vh-100"><h1 class="text-center text-danger">FATAL ERROR: TMDB API Key is missing.</h1></div>');
+                return;
+            }
+            this.cacheDOMElements();
+            this.loadMyList();
+            this.registerEventListeners();
+            this.ui.init(this);
+            this.api.init(this);
+            this.populateGenreDropdowns(); 
+            this.router();
+        },
+
+        cacheDOMElements() {
+            this.dom = {
+                appContainer: document.getElementById('app-container'),
+                header: document.getElementById('main-header'),
+                search: {
+                    icon: document.getElementById('search-icon'),
+                    overlay: document.getElementById('search-overlay'),
+                    input: document.getElementById('search-input'),
+                    results: document.getElementById('search-results'),
+                    closeBtn: document.getElementById('close-search-btn'),
+                },
+                trailer: {
+                    modal: document.getElementById('trailerModal'),
+                    iframe: document.getElementById('trailer-iframe'),
+                },
+            };
+            this.state.trailerModal = new bootstrap.Modal(this.dom.trailer.modal);
+        },
+
+        registerEventListeners() {
+            window.addEventListener('hashchange', () => this.router());
+            window.addEventListener('scroll', () => this.dom.header.classList.toggle('scrolled', window.scrollY > 10));
+            this.dom.header.querySelector('.logo').addEventListener('click', (e) => { e.preventDefault(); location.hash = '/home'; });
+            this.dom.search.icon.addEventListener('click', () => this.toggleSearch(true));
+            this.dom.search.closeBtn.addEventListener('click', () => this.toggleSearch(false));
+            this.dom.search.input.addEventListener('keyup', (e) => this.handleSearchInput(e));
+            this.dom.trailer.modal.addEventListener('hidden.bs.modal', () => this.dom.trailer.iframe.src = '');
+        },
+
+        async router() {
+            const [path, param1, param2, ...rest] = window.location.hash.slice(2).split('/');
+            this.updateActiveNavLink(path || 'home');
+            window.scrollTo(0, 0);
+
+            switch (path) {
+                case 'home': await this.renderHomePage(); break;
+                case 'details': await this.renderDetailsPage(param2, param1); break;
+                case 'player': await this.renderPlayerPage(param2, param1, rest); break;
+                case 'mylist': await this.renderMyListPage(); break;
+                case 'cast': await this.renderCastDetailsPage(param1); break;
+                case 'genre': await this.renderGenrePage(param1, param2); break;
+                case 'category': await this.renderCategoryPage(param1); break;
+                default: location.hash = '/home'; break;
+            }
+        },
+        
+        render(html) { this.dom.appContainer.innerHTML = html; },
+
+        async populateGenreDropdowns() {
+            const [movieGenreData, tvGenreData] = await Promise.all([
+                this.api.fetchTMDB('/genre/movie/list'),
+                this.api.fetchTMDB('/genre/tv/list')
+            ]);
+            if (movieGenreData?.genres) {
+                this.state.movieGenres = movieGenreData.genres;
+                const movieList = document.getElementById('movie-genre-list');
+                movieList.innerHTML = this.state.movieGenres.map(genre => 
+                    `<li><a class="dropdown-item" href="#/genre/movie/${genre.id}">${genre.name}</a></li>`
+                ).join('');
+            }
+            if (tvGenreData?.genres) {
+                this.state.tvGenres = tvGenreData.genres;
+                const tvList = document.getElementById('tv-genre-list');
+                tvList.innerHTML = this.state.tvGenres.map(genre => 
+                    `<li><a class="dropdown-item" href="#/genre/tv/${genre.id}">${genre.name}</a></li>`
+                ).join('');
+            }
+        },
+
+        async renderHomePage() {
+            this.render(`
+                <div class="view">
+                    <div class="hero-banner skeleton"></div>
+                    <div id="movie-rows-container" class="movie-rows-container">
+                        ${[...Array(3)].map(() => `<div class="p-3 p-md-5"><div class="skeleton" style="height: 24px; width: 250px; margin-bottom: 1rem;"></div><div class="d-flex gap-2">${[...Array(4)].map(() => `<div class="skeleton" style="width: 320px; aspect-ratio: 16/9;"></div>`).join('')}</div></div>`).join('')}
+                    </div>
+                </div>`);
+            
+            const trending = await this.api.fetchTMDB('/trending/all/week');
+            if (trending?.results.length) this.ui.updateHeroBanner(trending.results[0]);
+
+            const rowsContainer = document.getElementById('movie-rows-container');
+            rowsContainer.innerHTML = '';
+            for (const rowConfig of this.config.ROW_CONFIG) {
+                const data = await this.api.fetchTMDB(rowConfig.endpoint);
+                if (data?.results.length) {
+                    const forceMediaType = rowConfig.endpoint.includes('/movie') ? 'movie' : rowConfig.endpoint.includes('/tv') ? 'tv' : null;
+                    rowsContainer.appendChild(this.ui.createMovieRow(rowConfig, data.results, forceMediaType));
+                }
+            }
+        },
+
+        async renderDetailsPage(id, mediaType) {
+            this.render('<div class="d-flex justify-content-center align-items-center vh-100"><div class="spinner-border text-danger" role="status"></div></div>');
+            const details = await this.api.fetchTMDB(`/${mediaType}/${id}?append_to_response=credits,videos,recommendations`);
+            if (!details) { this.render('<h1 class="text-center p-5">Content not found.</h1>'); return; }
+
+            this.dom.appContainer.innerHTML = '';
+            this.dom.appContainer.appendChild(this.ui.createDetailsHTML(details, mediaType));
+            
+            const trailerBtn = document.getElementById('trailer-btn');
+            if (trailerBtn) {
+                trailerBtn.addEventListener('click', () => {
+                    const trailer = details.videos.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+                    if (trailer) {
+                        this.dom.trailer.iframe.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1`;
+                        this.state.trailerModal.show();
+                    } else { alert('No official trailer available.'); }
+                });
+            }
+
+            document.querySelector('.details-actions .my-list-btn').addEventListener('click', (e) => this.handleMyListToggle(e.currentTarget, details, mediaType));
+
+            if (mediaType === 'tv') {
+                const seasonSelector = document.getElementById('season-selector');
+                if(seasonSelector) {
+                    seasonSelector.addEventListener('change', (e) => this.ui.renderEpisodeList(id, e.target.value));
+                    this.ui.renderEpisodeList(id, seasonSelector.value);
+                }
+            }
+        },
+
+        async renderGenrePage(mediaType, genreId) {
+    this.render('<div class="d-flex justify-content-center align-items-center vh-100"><div class="spinner-border text-danger" role="status"></div></div>');
+    
+    const genreList = mediaType === 'movie' ? this.state.movieGenres : this.state.tvGenres;
+    const genre = genreList.find(g => g.id == genreId);
+    const genreName = genre ? genre.name : 'Genre';
+    
+    const data = await this.api.fetchTMDB(`/discover/${mediaType}?with_genres=${genreId}&sort_by=popularity.desc&page=1`);
+    
+    if (!data?.results || data.results.length === 0) {
+        this.render(`<div class="genre-view view"><h1 class="genre-title">No content found for ${genreName}</h1></div>`);
+        return;
+    }
+
+    const title = `${genreName} ${mediaType === 'movie' ? 'Movies' : 'TV Shows'}`;
+    
+    // --- THIS IS THE FIX ---
+    // Instead of creating an HTML string, we create a real container element.
+    const pageContainer = document.createElement('div');
+    pageContainer.className = 'genre-view view';
+
+    const titleElement = document.createElement('h1');
+    titleElement.className = 'genre-title';
+    titleElement.textContent = title;
+
+    const gridContainer = document.createElement('div');
+    gridContainer.className = 'grid-container';
+
+    // Now, create each card as a live DOM element and APPEND it.
+    data.results.forEach(item => {
+        // The createBackdropCard function already returns a live, clickable element.
+        gridContainer.appendChild(this.ui.createBackdropCard(item, mediaType));
+    });
+
+    pageContainer.appendChild(titleElement);
+    pageContainer.appendChild(gridContainer);
+    
+    // Render the final, fully interactive page container.
+    this.dom.appContainer.innerHTML = '';
+    this.dom.appContainer.appendChild(pageContainer);
+},
+
+        async renderCategoryPage(encodedEndpoint) {
+    const endpoint = decodeURIComponent(encodedEndpoint);
+    const rowConfig = this.config.ROW_CONFIG.find(r => r.endpoint === endpoint);
+    const title = rowConfig ? rowConfig.title : 'Category';
+
+    // --- Render Initial Page Structure with Skeleton Loader ---
+    let skeletonGridHTML = '';
+    for (let i = 0; i < 20; i++) {
+        skeletonGridHTML += '<div class="backdrop-card skeleton"></div>';
+    }
+    this.render(`
+        <div class="category-view view">
+            <h1 class="category-title">${title}</h1>
+            <div id="category-grid" class="grid-container">
+                ${skeletonGridHTML}
+            </div>
+            <div id="load-more-container" class="text-center mt-5"></div>
+        </div>
+    `);
+
+    const gridContainer = document.getElementById('category-grid');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    let currentPage = 1;
+    let isLoading = false; // Flag to prevent multiple clicks while loading
+
+    // --- Create a Reusable Function to Fetch and Render a Page ---
+    const loadPage = async (page) => {
+        const separator = endpoint.includes('?') ? '&' : '?';
+        const fullEndpoint = `${endpoint}${separator}page=${page}`;
+        
+        const data = await this.api.fetchTMDB(fullEndpoint);
+
+        if (!data?.results || data.results.length === 0) {
+            if (page === 1) {
+                gridContainer.innerHTML = `<p class="text-center fs-4">No content found in this category.</p>`;
+            }
+            loadMoreContainer.innerHTML = ''; // No more pages to load
+            return false;
+        }
+
+        const forceMediaType = endpoint.includes('/movie') ? 'movie' : endpoint.includes('/tv') ? 'tv' : null;
+
+        // --- THIS IS THE CORE FIX ---
+        // Create live DOM elements and append them one by one.
+        
+        if (page === 1) {
+            gridContainer.innerHTML = ''; // Clear the skeletons
+        }
+
+        data.results.forEach(item => {
+            if (item.backdrop_path) {
+                const mediaType = forceMediaType || item.media_type || (item.title ? 'movie' : 'tv');
+                // createBackdropCard returns a live element with listeners.
+                // We append it directly to the container.
+                gridContainer.appendChild(this.ui.createBackdropCard(item, mediaType));
+            }
+        });
+
+        return data.total_pages > page; // Check if more pages exist
+    };
+    
+    // --- Initial Load ---
+    const hasMorePages = await loadPage(currentPage);
+
+    // --- "Load More" Button Logic ---
+    if (hasMorePages) {
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.className = 'btn btn-outline-light btn-lg';
+        loadMoreBtn.textContent = 'Load More';
+        loadMoreContainer.appendChild(loadMoreBtn);
+
+        loadMoreBtn.addEventListener('click', async () => {
+            if (isLoading) return; // Prevent double-clicking
+            isLoading = true;
+            
+            currentPage++;
+            loadMoreBtn.style.display = 'none';
+
+            // Show skeleton loaders while fetching
+            const skeletonWrapper = document.createElement('div');
+            skeletonWrapper.className = 'loading-skeletons'; // Wrapper to easily remove them
+            let skeletonLoadersHTML = '';
+            for (let i = 0; i < 10; i++) {
+                skeletonLoadersHTML += '<div class="backdrop-card skeleton"></div>';
+            }
+            skeletonWrapper.innerHTML = skeletonLoadersHTML;
+            gridContainer.appendChild(skeletonWrapper);
+
+            const morePagesExist = await loadPage(currentPage);
+            
+            // Remove skeleton loaders
+            skeletonWrapper.remove();
+            
+            if (morePagesExist) {
+                loadMoreBtn.style.display = 'inline-block';
+            } else {
+                loadMoreContainer.innerHTML = '';
+            }
+            isLoading = false;
+        });
+    }
+},
+ 
+
+       async renderCastDetailsPage(castId) {
+            this.render('<div class="d-flex justify-content-center align-items-center vh-100"><div class="spinner-border text-danger" role="status"></div></div>');
+            const castDetails = await this.api.fetchTMDB(`/person/${castId}?append_to_response=movie_credits,tv_credits`);
+            if (!castDetails || castDetails.success === false) {
+                this.render('<h1 class="text-center p-5">Cast member not found.</h1>');
+                return;
+            }
+
+            this.dom.appContainer.innerHTML = '';
+            this.dom.appContainer.appendChild(this.ui.createCastDetailsHTML(castDetails));
+
+            const bioText = document.getElementById('biography-text');
+            const readMoreBtn = document.getElementById('read-more-btn');
+            if (bioText && readMoreBtn) {
+                if (bioText.scrollHeight > bioText.clientHeight) {
+                    readMoreBtn.classList.remove('d-none');
+                    readMoreBtn.addEventListener('click', () => {
+                        bioText.classList.toggle('expanded');
+                        readMoreBtn.textContent = bioText.classList.contains('expanded') ? 'Show Less' : 'Read More';
+                    });
+                }
+            }
+        },
+
+        async renderPlayerPage(id, mediaType, params) {
+            let streamUrl = `${this.config.STREAMING_BASE_URL}${mediaType}/${id}`;
+            let titleText = 'Loading...';
+            
+            if (mediaType === 'tv' && params.length >= 2) {
+                streamUrl += `/${params[0]}/${params[1]}`;
+                titleText = `S${String(params[0]).padStart(2, '0')} E${String(params[1]).padStart(2, '0')}`;
+            }
+
+            const details = await this.api.fetchTMDB(`/${mediaType}/${id}`);
+            titleText = `${details.name || details.title} ${mediaType === 'tv' ? titleText : ''}`;
+
+            this.render(`
+                <div class="player-view d-flex flex-column">
+                    <div class="player-header">
+                        <span onclick="window.history.length > 1 ? window.history.back() : (location.hash = '/home')" class="d-flex align-items-center" style="cursor:pointer;">
+                            <i class="fas fa-arrow-left fs-3"></i>
+                            <span class="ms-3 fs-6 fs-md-5">Now Playing: ${titleText}</span>
+                        </span>
+                    </div>
+                    <div class="player-container flex-grow-1">
+                        <iframe src="${streamUrl}" allow="fullscreen" allowfullscreen></iframe>
+                    </div>
+                </div>`);
+        },
+        
+        async renderMyListPage() {
+            this.render(`<div id="my-list-view" class="view"><div class="container-fluid"><h1 class="my-list-title">My List</h1><div id="my-list-grid" class="grid-container"></div></div></div>`);
+            const grid = document.getElementById('my-list-grid');
+            if (this.state.myList.length === 0) {
+                grid.innerHTML = `<div class="empty-list-message">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <p>Your list is empty.</p>
+                                    <span>Add shows and movies to your list to see them here.</span>
+                                  </div>`;
+                return;
+            }
+            const items = await Promise.all(this.state.myList.map(item => this.api.fetchTMDB(`/${item.mediaType}/${item.id}`)));
+            grid.innerHTML = items.map(item => item ? this.ui.createBackdropCard(item, item.mediaType).outerHTML : '').join('');
+        },
+
+        // --- UI COMPONENTS ---
+        ui: {
+            _app: null, init(app) { this._app = app; },
+
+            updateHeroBanner(item) {
+                const hero = document.querySelector('.hero-banner');
+                if (!hero) return;
+                hero.classList.remove('skeleton');
+                hero.style.backgroundImage = `url(${this._app.config.BACKDROP_BASE_URL}${item.backdrop_path})`;
+                const mediaType = item.media_type || (item.title ? 'movie' : 'tv');
+                hero.innerHTML = `
+                    <div class="container-fluid d-flex align-items-end align-items-md-center h-100 p-3 p-md-5"><div class="row"><div class="col-md-8 col-lg-6">
+                        <h1 class="display-4 display-md-3 fw-bolder text-shadow">${item.title || item.name}</h1>
+                        <p class="lead d-none d-md-block text-shadow">${item.overview.substring(0, 180)}...</p>
+                        <div class="mt-4">
+                            <a href="#/player/${mediaType}/${item.id}" class="btn btn-light btn-lg"><i class="fas fa-play me-2"></i>Play</a>
+                            <a href="#/details/${mediaType}/${item.id}" class="btn btn-secondary btn-lg ms-2"><i class="fas fa-info-circle me-2"></i>More Info</a>
+                        </div>
+                    </div></div></div><div class="hero-fade position-absolute bottom-0 start-0 w-100"></div>`;
+            },
+
+            /*createMovieRow(config, items, forceMediaType = null) {
+                const rowWrapper = document.createElement('div');
+                rowWrapper.className = 'movie-row-wrapper';
+                rowWrapper.innerHTML = `
+                    <h2 class="row-title">${config.title}</h2>
+                    <div class="position-relative">
+                        <div class="slider-arrow left"><i class="fas fa-chevron-left"></i></div>
+                        <div class="posters-container"></div>
+                        <div class="slider-arrow right"><i class="fas fa-chevron-right"></i></div>
+                    </div>
+                `;
+                const postersContainer = rowWrapper.querySelector('.posters-container');
+                const leftArrow = rowWrapper.querySelector('.slider-arrow.left');
+                const rightArrow = rowWrapper.querySelector('.slider-arrow.right');
+
+                if (config.title === 'Trending Now') {
+                    postersContainer.classList.add('poster-row');
+                }
+
+                items.forEach((item, index) => {
+                    const itemMediaType = forceMediaType || item.media_type || (item.title ? 'movie' : 'tv');
+                    if (config.title === 'Trending Now' && item.poster_path) {
+                        postersContainer.appendChild(this.createPosterCard(item, index, itemMediaType));
+                    } else if (item.backdrop_path) {
+                        postersContainer.appendChild(this.createBackdropCard(item, itemMediaType));
+                    }
+                });
+
+                leftArrow.onclick = () => postersContainer.scrollBy({ left: -postersContainer.clientWidth * 0.9, behavior: 'smooth' });
+                rightArrow.onclick = () => postersContainer.scrollBy({ left: postersContainer.clientWidth * 0.9, behavior: 'smooth' });
+                return rowWrapper;
+            },*/
+
+            createMovieRow(config, items, forceMediaType = null) {
+    const rowWrapper = document.createElement('div');
+    rowWrapper.className = 'movie-row-wrapper';
+
+    // Build the URL for the "View More" link
+    // We'll encode the endpoint URL to safely pass it in the hash
+    const viewMoreUrl = `#/category/${encodeURIComponent(config.endpoint)}`;
+
+    // Add the "View More" link next to the title
+    rowWrapper.innerHTML = `
+        <div class="row-header">
+            <h2 class="row-title">${config.title}</h2>
+            <a href="${viewMoreUrl}" class="view-more-link">View More <i class="fas fa-chevron-right"></i></a>
+        </div>
+        <div class="position-relative">
+            <div class="slider-arrow left"><i class="fas fa-chevron-left"></i></div>
+            <div class="posters-container"></div>
+            <div class="slider-arrow right"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    `;
+
+    const postersContainer = rowWrapper.querySelector('.posters-container');
+    const leftArrow = rowWrapper.querySelector('.slider-arrow.left');
+    const rightArrow = rowWrapper.querySelector('.slider-arrow.right');
+
+    if (config.title === 'Trending Now') {
+        postersContainer.classList.add('poster-row');
+    }
+
+    // Limit the number of items shown on the homepage row
+    const itemsToShow = items.slice(0, 20);
+
+    itemsToShow.forEach((item, index) => {
+        const itemMediaType = forceMediaType || item.media_type || (item.title ? 'movie' : 'tv');
+        if (config.title === 'Trending Now' && item.poster_path) {
+            postersContainer.appendChild(this.createPosterCard(item, index, itemMediaType));
+        } else if (item.backdrop_path) {
+            postersContainer.appendChild(this.createBackdropCard(item, itemMediaType));
+        }
+    });
+
+    leftArrow.onclick = () => postersContainer.scrollBy({ left: -postersContainer.clientWidth * 0.9, behavior: 'smooth' });
+    rightArrow.onclick = () => postersContainer.scrollBy({ left: postersContainer.clientWidth * 0.9, behavior: 'smooth' });
+
+    return rowWrapper;
+},
+
+
+            createPosterCard(item, index, mediaType) {
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = 'poster-card';
+                cardWrapper.onclick = () => location.hash = `#/details/${mediaType}/${item.id}`;
+                cardWrapper.innerHTML = `
+                    <span class="poster-number">${index + 1}</span>
+                    <img class="poster-img" src="${this._app.config.IMAGE_BASE_URL}${item.poster_path}" alt="${item.title || item.name}" loading="lazy">
+                `;
+                return cardWrapper;
+            },
+            
+            createBackdropCard(item, mediaType) {
+                const card = document.createElement('div');
+                card.className = 'backdrop-card';
+                const definitiveMediaType = mediaType || item.media_type || (item.title ? 'movie' : 'tv');
+                card.onclick = (e) => { 
+                    if (!e.target.closest('button, a')) {
+                        location.hash = `#/details/${definitiveMediaType}/${item.id}`;
+                    } 
+                };
+                const isInList = this._app.state.myList.some(i => i.id == item.id);
+                const releaseYear = (item.release_date || item.first_air_date || '').substring(0, 4);
+                card.innerHTML = `
+                    <img class="backdrop-img" src="${this._app.config.IMAGE_BASE_URL}${item.backdrop_path}" alt="${item.title || item.name}" loading="lazy" onerror="this.src='${this._app.config.FALLBACK_IMAGE}'">
+                    <div class="card-info-panel">
+                        <div class="hover-actions">
+                            <a href="#/player/${definitiveMediaType}/${item.id}"><button class="btn-play" title="Play"><i class="fas fa-play"></i></button></a>
+                            <button class="my-list-btn" data-media-type="${definitiveMediaType}" data-id="${item.id}" title="${isInList ? 'Remove from My List' : 'Add to My List'}"><i class="fas ${isInList ? 'fa-check' : 'fa-plus'}"></i></button>
+                        </div>
+                        <h5 class="card-title">${item.title || item.name}</h5>
+                        <div class="card-meta">
+                            <span class="text-success">${(item.vote_average * 10).toFixed(0)}% Match</span>
+                            ${releaseYear ? `<span>${releaseYear}</span>` : ''}
+                        </div>
+                    </div>`;
+                card.querySelector('.my-list-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this._app.handleMyListToggle(e.currentTarget, item, definitiveMediaType);
+                });
+                return card;
+            },
+            
+            createDetailsHTML(details, mediaType) {
+                const hasTrailer = details.videos?.results.some(v => v.type === 'Trailer' && v.site === 'YouTube');
+                const isInList = this._app.state.myList.some(i => i.id == details.id);
+                const detailsView = document.createElement('div');
+                detailsView.className = 'details-view-container';
+                detailsView.style.backgroundImage = `url(${this._app.config.BACKDROP_BASE_URL}${details.backdrop_path})`;
+                const mainContent = `
+                    <div class="details-overlay">
+                        <div class="row">
+                            <div class="col-md-5 col-lg-4 text-center text-md-start mb-4">
+                                <img src="${details.poster_path ? this._app.config.IMAGE_BASE_URL + details.poster_path : this._app.config.FALLBACK_IMAGE}" class="details-poster" alt="${details.title || details.name}">
+                            </div>
+                            <div class="col-md-7 col-lg-8">
+                                <h1 class="display-4 display-md-3 fw-bold">${details.title || details.name}</h1>
+                                <div class="d-flex flex-wrap align-items-center gap-3 gap-md-4 text-small my-3">
+                                    <span class="fw-bold text-success">${details.vote_average.toFixed(1)} Rating</span>
+                                    <span>${(details.release_date || details.first_air_date || '').substring(0, 4)}</span>
+                                    <span>${details.runtime ? `${Math.floor(details.runtime / 60)}h ${details.runtime % 60}m` : `${details.number_of_seasons} Season${details.number_of_seasons > 1 ? 's' : ''}`}</span>
+                                </div>
+                                <div class="my-3">${details.genres.map(g => `<span class="badge bg-secondary me-1">${g.name}</span>`).join('')}</div>
+                                <p class="lead" style="max-width: 700px;">${details.overview}</p>
+                                <div class="details-actions mt-4 d-flex flex-wrap align-items-center gap-3">
+                                    <a href="#/player/${mediaType}/${details.id}" class="btn btn-light btn-lg"><i class="fas fa-play me-2"></i>Play</a>
+                                    ${hasTrailer ? `<button id="trailer-btn" class="btn btn-outline-light btn-lg"><i class="fa-brands fa-youtube me-2"></i>Trailer</button>` : ''}
+                                    <button class="my-list-btn icon-only-btn" data-media-type="${mediaType}" data-id="${details.id}" title="${isInList ? 'Remove from My List' : 'Add to My List'}"><i class="fas ${isInList ? 'fa-check' : 'fa-plus'}"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="dynamic-sections-container"></div>
+                    </div>
+                `;
+                detailsView.innerHTML = mainContent;
+                const dynamicSectionsContainer = detailsView.querySelector('#dynamic-sections-container');
+                if (mediaType === 'tv') {
+                    dynamicSectionsContainer.appendChild(this.createTVShowSectionHTML(details.seasons));
+                }
+                if (details.credits?.cast.length) {
+                    dynamicSectionsContainer.appendChild(this.createCastSectionHTML(details.credits.cast));
+                }
+                if (details.recommendations?.results.length) {
+                    dynamicSectionsContainer.appendChild(this.createRecommendationsSectionHTML(details.recommendations.results, mediaType));
+                }
+                return detailsView;
+            },
+            
+            createCastSectionHTML(cast) {
+                const section = document.createElement('div');
+                section.className = 'details-section';
+                section.innerHTML = `<h2>Top Cast</h2>`;
+                const castList = document.createElement('div');
+                castList.className = 'cast-list';
+                castList.innerHTML = cast.slice(0, 12).map(member => member.profile_path ? `
+                    <div class="cast-member" onclick="location.hash='#/cast/${member.id}'" title="${member.name} as ${member.character}">
+                        <img class="cast-img" src="${this._app.config.IMAGE_BASE_URL}${member.profile_path}" alt="${member.name}">
+                        <p class="mb-0 fw-bold">${member.name}</p>
+                        <small class="text-small">${member.character}</small>
+                    </div>` : '').join('');
+                section.appendChild(castList);
+                return section;
+            },
+            
+           createCastDetailsHTML(cast) {
+                const section = document.createElement('div');
+                const imageBase = this._app.config.IMAGE_BASE_URL;
+                const fallback = this._app.config.FALLBACK_IMAGE;
+                const allCredits = [...(cast.movie_credits?.cast || []), ...(cast.tv_credits?.cast || [])];
+                allCredits.sort((a, b) => b.popularity - a.popularity);
+                const backdropPath = allCredits.length > 0 ? allCredits[0].backdrop_path : null;
+                section.className = 'details-view-container';
+                section.style.backgroundImage = `url(${backdropPath ? this._app.config.BACKDROP_BASE_URL + backdropPath : ''})`;
+
+                section.innerHTML = `
+                    <div class="details-overlay">
+                        <div class="row">
+                            <div class="col-md-5 col-lg-4 text-center text-md-start mb-4">
+                                <img src="${cast.profile_path ? imageBase + cast.profile_path : fallback}" class="details-poster" alt="${cast.name}">
+                            </div>
+                            <div class="col-md-7 col-lg-8">
+                                <h1 class="display-4 display-md-3 fw-bold">${cast.name}</h1>
+                                <div class="d-flex flex-wrap gap-3 gap-md-4 text-small my-3">
+                                    ${cast.birthday ? `<span><strong>Born:</strong> ${cast.birthday}</span>` : ''}
+                                    <span><strong>Known for:</strong> ${cast.known_for_department}</span>
+                                    ${cast.place_of_birth ? `<span class="d-none d-md-inline"><strong>From:</strong> ${cast.place_of_birth}</span>` : ''}
+                                </div>
+                                <div class="biography-container">
+                                    <h5 class="mt-4">Biography</h5>
+                                    <p id="biography-text" class="lead biography-text">${cast.biography || 'No biography available.'}</p>
+                                    <button id="read-more-btn" class="read-more-btn d-none">Read More</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="cast-known-for-section"></div>
+                    </div>
+                `;
+                const knownForContainer = section.querySelector('#cast-known-for-section');
+                knownForContainer.appendChild(this.createKnownForSectionHTML(allCredits));
+                return section;
+            },
+
+            createKnownForSectionHTML(credits) {
+                const section = document.createElement('div');
+                if (!credits || credits.length === 0) return section;
+                section.className = 'details-section';
+                const validCredits = credits.filter(c => c.backdrop_path).slice(0, 20);
+                if (validCredits.length === 0) return section;
+                section.appendChild(this._app.ui.createMovieRow({ title: 'Known For' }, validCredits));
+                return section;
+            },
+
+            createRecommendationsSectionHTML(recommendations, mediaType) {
+                const section = document.createElement('div');
+                section.className = 'details-section';
+                section.appendChild(this.createMovieRow({ title: 'More Like This' }, recommendations, mediaType));
+                return section;
+            },
+
+            createTVShowSectionHTML(seasons) {
+                const section = document.createElement('div');
+                if (!seasons || seasons.filter(s => s.season_number > 0).length === 0) return section;
+                section.className = 'details-section';
+                section.innerHTML = `
+                    <h2>Seasons & Episodes</h2>
+                    <select id="season-selector" class="form-select form-select-lg bg-dark text-white season-selector mb-4">
+                        ${seasons.filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">${s.name}</option>`).join('')}
+                    </select>
+                    <div id="episode-list-container">
+                        <div class="d-flex justify-content-center p-5"><div class="spinner-border text-danger"></div></div>
+                    </div>
+                `;
+                return section;
+            },
+
+            async renderEpisodeList(tvId, seasonNumber) {
+                const container = document.getElementById('episode-list-container');
+                container.innerHTML = `<div class="d-flex justify-content-center p-5"><div class="spinner-border text-danger"></div></div>`;
+                const seasonDetails = await this._app.api.fetchTMDB(`/tv/${tvId}/season/${seasonNumber}`);
+                if (!seasonDetails?.episodes) { container.innerHTML = '<p>Could not load episodes.</p>'; return; }
+                container.innerHTML = `<div class="episode-list">${seasonDetails.episodes.map(ep => `<a href="#/player/tv/${tvId}/${ep.season_number}/${ep.episode_number}" class="episode-item-link"><div class="episode-item"><h4 class="text">${ep.episode_number}</h4><div class="episode-img-container"><img class="episode-img" src="${ep.still_path ? this._app.config.IMAGE_BASE_URL + ep.still_path : this._app.config.FALLBACK_IMAGE}" alt="${ep.name}"><i class="fas fa-play episode-play-icon"></i></div><div class="flex-grow-1"><h5 class="mb-1">${ep.name}</h5><p class="text mb-0 d-none d-md-block episode-overview">${ep.overview.substring(0,150)}...</p></div><span class="episode-runtime">${ep.runtime ? `${ep.runtime}m` : ''}</span></div></a>`).join('')}</div>`;
+            }
+        },
+
+        // --- API & DATA HANDLING ---
+        api: {
+            _app: null, init(app) { this._app = app; },
+            async fetchTMDB(endpoint) {
+                try {
+                    const separator = endpoint.includes('?') ? '&' : '?';
+                    const url = `${this._app.config.API_BASE_URL}${endpoint}${separator}api_key=${this._app.config.API_KEY}`;
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) { console.error(`Error fetching: ${endpoint}`, error); return null; }
+            }
+        },
+        
+        // --- MY LIST, SEARCH & OTHER LOGIC ---
+        loadMyList() { this.state.myList = JSON.parse(localStorage.getItem('myList')) || []; },
+        saveMyList() { localStorage.setItem('myList', JSON.stringify(this.state.myList)); },
+        handleMyListToggle(button, item, mediaType) {
+            const definitiveMediaType = mediaType || item.media_type || (item.title ? 'movie' : 'tv');
+            const isInList = this.state.myList.some(i => i.id == item.id);
+            if (isInList) {
+                this.state.myList = this.state.myList.filter(i => i.id != item.id);
+            } else {
+                this.state.myList.push({ id: item.id, mediaType: definitiveMediaType });
+            }
+            this.saveMyList();
+            document.querySelectorAll(`.my-list-btn[data-id='${item.id}']`).forEach(btn => {
+                const icon = btn.querySelector('i');
+                const isNowInList = !isInList;
+                icon.className = `fas ${isNowInList ? 'fa-check' : 'fa-plus'}`;
+                if (btn.classList.contains('icon-only-btn')) {
+                    // no extra class needed
+                } else {
+                    icon.className += ' me-2';
+                }
+                btn.title = isNowInList ? 'Remove from My List' : 'Add to My List';
+            });
+        },
+        toggleSearch(show) {
+            this.dom.search.overlay.classList.toggle('d-none', !show);
+            document.body.style.overflow = show ? 'hidden' : 'auto';
+            if (show) {
+                this.dom.search.input.focus();
+            } else {
+                this.dom.search.input.value = '';
+                this.dom.search.results.innerHTML = '';
+            }
+        },
+        handleSearchInput(event) {
+            clearTimeout(this.state.searchDebounce);
+            const query = event.target.value.trim();
+            if (query.length < 2) { this.dom.search.results.innerHTML = ''; return; }
+            this.state.searchDebounce = setTimeout(async () => {
+                this.dom.search.results.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-danger"></div></div>`;
+                const data = await this.api.fetchTMDB(`/search/multi?query=${encodeURIComponent(query)}`);
+                if (data?.results) {
+                    const valid = data.results.filter(r => ['movie', 'tv'].includes(r.media_type) && r.backdrop_path);
+                    if (valid.length) {
+                        const grid = document.createElement('div');
+                        grid.className = 'grid-container container-fluid';
+                        valid.forEach(item => grid.appendChild(this.ui.createBackdropCard(item, item.media_type)));
+                        this.dom.search.results.innerHTML = '';
+                        this.dom.search.results.appendChild(grid);
+                    } else {
+                        this.dom.search.results.innerHTML = `<p class="text-center p-5 fs-4">No results for "${query}"</p>`;
+                    }
+                } else {
+                    this.dom.search.results.innerHTML = `<p class="text-center p-5 text-danger">Search failed.</p>`;
+                }
+            }, 400);
+        },
+        updateActiveNavLink(path) {
+            this.dom.header.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#/${path}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+    };
+    
+    App.init();
+});
+</script>
+</body>
+</html>
