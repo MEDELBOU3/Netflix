@@ -8,14 +8,14 @@
     "build": "electron-builder"
   },
   "keywords": [],
-  "author": "Your Name",
+  "author": "medelbou3",
   "license": "ISC",
   "devDependencies": {
     "electron": "^28.2.3",
     "electron-builder": "^24.9.1"
   },
   "build": {
-    "appId": "com.yourname.netflixclone",
+    "appId": "com.medelbou3.netflixclone",
     "productName": "Netflix Clone",
     "files": [
       "main.js",
@@ -23,16 +23,11 @@
       "package.json"
     ],
     "win": {
-      "target": "nsis-web",
-      "icon": "icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "target": "nsis-web"
     },
     "publish": {
       "provider": "github",
-      "owner": "MEDELBOU3",
+      "owner": "medelbou3",
       "repo": "Netflix"
     }
   }
