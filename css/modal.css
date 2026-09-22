@@ -1,0 +1,232 @@
+/* ============================================================================
+   css/modal.css
+   Centered Floating YouTube Trailer & Search Modal
+   ============================================================================ */
+
+/* Fullscreen Overlay Container - Fixed & Centered */
+.custom-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: none !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 999999 !important;
+    pointer-events: none !important;
+}
+
+/* Active State: Centered Flexbox */
+.custom-modal.active {
+    display: flex !important;
+    pointer-events: auto !important;
+}
+
+/* Glassmorphic Backdrop */
+.modal-backdrop-blur {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(6, 8, 12, 0.88) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    z-index: 1 !important;
+    animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Centered Modal Card Box */
+.trailer-modal-box {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 90% !important;
+    max-width: 920px !important;
+    background: #0f151e !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.95), 0 0 40px rgba(0, 0, 0, 0.6) !important;
+    overflow: hidden !important;
+    animation: modalScaleCenter 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 16:9 YouTube Video Canvas */
+.trailer-video-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+}
+
+.trailer-video-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Modal Bottom Info Footer */
+.trailer-meta-footer {
+    padding: 18px 26px;
+    background: #131924;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.trailer-title {
+    font-family: var(--font-heading, 'Outfit', sans-serif);
+    font-size: 1.15rem;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Close Cross Button */
+.modal-close-btn {
+    position: absolute !important;
+    top: 14px !important;
+    right: 14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 50% !important;
+    display: grid !important;
+    place-items: center !important;
+    cursor: pointer !important;
+    z-index: 20 !important;
+    transition: all 0.2s ease !important;
+}
+
+.modal-close-btn:hover {
+    background: #ffffff !important;
+    color: #0b0f15 !important;
+    transform: scale(1.08) !important;
+}
+
+/* Search Modal Box (Centered) */
+.search-modal-card {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 90% !important;
+    max-width: 680px !important;
+    background: #10141e !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.95) !important;
+    overflow: hidden !important;
+    animation: modalScaleCenter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-input-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 14px;
+    background: #141824;
+}
+
+.search-modal-icon {
+    font-size: 1.1rem;
+    color: var(--brand-green, #10b981);
+}
+
+.search-input-header input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.search-clear-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #64748b);
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.search-clear-btn:hover {
+    color: #fff;
+}
+
+.search-results-list {
+    max-height: 440px;
+    overflow-y: auto;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.search-idle-hint {
+    padding: 36px 20px;
+    text-align: center;
+    color: var(--text-muted, #64748b);
+    font-size: 0.9rem;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.search-result-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.search-item-poster {
+    width: 44px;
+    height: 64px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #1e2433;
+}
+
+.search-item-info {
+    flex: 1;
+}
+
+.search-item-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.search-item-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3px;
+}
+
+/* Animations */
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalScaleCenter {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+}
+

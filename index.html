@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlix — Movies & TV Shows</title>
+
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- HLS.js for direct .m3u8 streaming playback -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/live-tv.css">
+</head>
+
+<body class="theme-ambient">
+
+    <!-- Ambient Dynamic Background Canvas -->
+    <div class="ambient-backdrop-container" id="ambient-container">
+        <div class="ambient-layer ambient-image" id="ambient-image"></div>
+        <div class="ambient-layer ambient-radial"></div>
+    </div>
+
+    <!-- Floating Top Bar -->
+    <header class="topbar-container">
+        <!-- Logo / Back button -->
+        <div class="brand-box">
+            <button type="button" class="nav-icon-btn nav-back-btn" id="nav-back-btn" style="display: none;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <img src="assets/icons/logo.png" class="app-logo" id="logo-btn" alt="">
+        </div>
+
+        <!-- Floating Glass Capsule Menu -->
+        <nav class="pill-navbar" id="pill-navbar">
+            <button type="button" class="pill-nav-item active" data-page="home">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </button>
+            <button type="button" class="pill-nav-item" data-page="movies">
+                <i class="fa-solid fa-film"></i>
+                <span>Movies</span>
+            </button>
+            <button type="button" class="pill-nav-item" data-page="shows">
+                <span>Shows</span>
+            </button>
+            <button type="button" class="pill-nav-item" data-page="live-tv">
+                <i class="fa-solid fa-tower-broadcast"></i>
+                <span>Live TV</span>
+            </button>
+            <button type="button" class="pill-nav-item" data-page="watchlist">
+                <span>My List</span>
+            </button>
+
+            <div class="pill-divider"></div>
+
+            <button type="button" class="pill-icon-btn" id="open-search-btn" title="Search (Cmd+K)">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <button type="button" class="pill-icon-btn" id="open-settings-btn" title="Settings">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content Stream -->
+    <main class="main-wrapper">
+
+        <!-- Fullscreen Cinema Streaming Player Page -->
+        <div class="player-page-container" id="player-view-container" style="display: none;"></div>
+
+        <!-- Dedicated Film / TV Show Detail View -->
+        <div class="detail-page-container" id="detail-view-container" style="display: none;"></div>
+
+        <!-- Dedicated Settings Page View -->
+        <div class="settings-page-container" id="settings-view-container" style="display: none;"></div>
+
+        <!-- Dedicated Live TV View -->
+        <div class="live-tv-page-container" id="live-tv-view-container" style="display: none;"></div>
+
+        <!-- 1. Hero Showcase Section -->
+        <section class="hero-showcase" id="hero-showcase">
+            <div class="hero-backdrop-media" id="hero-backdrop-media">
+                <img id="hero-backdrop-img" src="" alt="Hero Backdrop" class="hero-backdrop-img">
+                <div class="hero-vignette-left"></div>
+                <div class="hero-vignette-bottom"></div>
+                <div class="hero-vignette-top"></div>
+            </div>
+
+            <div class="hero-content">
+                <div class="hero-logo-box" id="hero-title-container">
+                    <h1 class="hero-title-text" id="hero-title">AVENGERS: ENDGAME</h1>
+                </div>
+
+                <div class="hero-meta-row" id="hero-meta-row">
+                    <span class="meta-badge meta-rating"><i class="fa-solid fa-star"></i> <strong
+                            id="hero-rating">8.2/10</strong></span>
+                    <span class="meta-dot">•</span>
+                    <span class="meta-badge"><i class="fa-regular fa-calendar"></i> <span
+                            id="hero-year">2019</span></span>
+                    <span class="meta-dot">•</span>
+                    <span class="meta-badge"><i class="fa-solid fa-ghost"></i> <span id="hero-genre">Movie</span></span>
+                </div>
+
+                <p class="hero-synopsis" id="hero-synopsis">
+                    After the devastating events of Avengers: Infinity War, the universe is in ruins. With the help of
+                    remaining allies, the Avengers assemble once more in order to reverse Thanos' actions.
+                </p>
+
+                <div class="hero-actions">
+                    <button type="button" class="btn-play" id="hero-play-btn">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Play</span>
+                    </button>
+
+                    <div class="split-action-pill">
+                        <button type="button" class="split-btn split-watchlist" id="hero-watchlist-btn"
+                            title="Add to My List">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                        <div class="split-line"></div>
+                        <button type="button" class="split-btn split-info" id="hero-info-btn" title="More Info">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-slide-indicators" id="hero-indicators"></div>
+        </section>
+
+        <!-- 2. Continue Watching Section with Navigation Arrows -->
+        <section class="section-row container" id="section-continue-watching">
+            <div class="section-header">
+                <h2 class="section-title">Continue Watching</h2>
+                <button type="button" class="section-edit-btn" id="btn-edit-continue" title="Edit continue watching">
+                    <i class="fa-solid fa-pen"></i> <span id="edit-btn-text">Edit</span>
+                </button>
+            </div>
+
+            <div class="carousel-container-wrap">
+                <button type="button" class="carousel-arrow-btn prev-btn" id="continue-prev-btn" aria-label="Previous">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div class="continue-watching-grid" id="continue-watching-grid"></div>
+
+                <button type="button" class="carousel-arrow-btn next-btn" id="continue-next-btn" aria-label="Next">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. Browse By Provider Section -->
+        <section class="section-row container" id="section-providers">
+            <div class="section-header">
+                <h2 class="section-title">Browse by Provider</h2>
+            </div>
+
+            <div class="carousel-container-wrap">
+                <button type="button" class="carousel-arrow-btn prev-btn" id="providers-prev-btn" aria-label="Previous">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div class="providers-scroll-row" id="providers-list"></div>
+
+                <button type="button" class="carousel-arrow-btn next-btn" id="providers-next-btn" aria-label="Next">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. Trending Movies Grid Section -->
+        <section class="section-row container" id="section-trending">
+            <div class="section-header">
+                <h2 class="section-title" id="grid-section-title">Trending Movies</h2>
+                <a href="#" class="view-all-link" id="view-all-btn">View All <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <div class="media-poster-grid" id="media-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- Floating Scroll To Top Button -->
+    <button type="button" class="scroll-top-btn" id="scroll-top-btn" title="Back to Top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+
+    <!-- Trailer Modal -->
+    <div class="custom-modal" id="trailer-modal"></div>
+
+    <!-- Search Modal -->
+    <div class="custom-modal" id="search-modal">
+        <div class="modal-backdrop-blur"></div>
+        <div class="search-modal-card">
+            <div class="search-input-header">
+                <i class="fa-solid fa-magnifying-glass search-modal-icon"></i>
+                <input type="text" id="global-search-input" placeholder="Search movies, TV shows, actors..."
+                    autocomplete="off">
+                <button type="button" class="search-clear-btn" id="search-clear-btn"><i
+                        class="fa-solid fa-circle-xmark"></i></button>
+            </div>
+            <div class="search-results-list" id="search-results-list"></div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <button type="button" class="mobile-tab active" data-page="home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </button>
+        <button type="button" class="mobile-tab" data-page="movies">
+            <i class="fa-solid fa-film"></i>
+            <span>Movies</span>
+        </button>
+        <button type="button" class="mobile-tab" data-page="shows">
+            <i class="fa-solid fa-tv"></i>
+            <span>Shows</span>
+        </button>
+        <button type="button" class="mobile-tab" data-page="watchlist">
+            <i class="fa-solid fa-bookmark"></i>
+            <span>My List</span>
+        </button>
+        <button type="button" class="mobile-tab" data-page="live-tv">
+            <i class="fa-solid fa-tower-broadcast"></i>
+            <span>Live TV</span>
+        </button>
+        <button type="button" class="mobile-tab" data-page="settings">
+            <i class="fa-solid fa-gear"></i>
+            <span>Settings</span>
+        </button>
+    </nav>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
