@@ -1,0 +1,34 @@
+{
+  "name": "Netflix-Clone",
+  "version": "1.0.0",
+  "description": "A feature-rich movie and TV show streaming application.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [],
+  "author": "medelbou3",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.2.3",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.medelbou3.netflixclone",
+    "productName": "Netflix Clone",
+    "files": [
+      "main.js",
+      "index.html",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis-web"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "medelbou3",
+      "repo": "Netflix"
+    }
+  }
+}
