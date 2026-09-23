@@ -455,30 +455,6 @@ export class DetailView {
             </div>
           </section>
 
-          <!-- ================================================================
-               ADDITIONAL DETAILS
-          ================================================================= -->
-          <section class="detail-sub-section container detail-additional-section">
-            <div class="section-header">
-              <h2 class="detail-section-title">Details</h2>
-            </div>
-
-            <div class="detail-details-grid">
-              ${this._detailGridItem("Original Title", originalTitle)}
-              ${this._detailGridItem("Release Date", releaseDateFormatted)}
-              ${this._detailGridItem("Original Language", language)}
-              ${this._detailGridItem("Status", status)}
-              ${this._detailGridItem("Genres", genresList)}
-              ${this._detailGridItem("Country", countries)}
-              ${this._detailGridItem("Director / Creator", director)}
-              ${this._detailGridItem("Certification", certification)}
-              ${budget > 0 ? this._detailGridItem("Budget", this._formatMoney(budget)) : ""}
-              ${revenue > 0 ? this._detailGridItem("Revenue", this._formatMoney(revenue)) : ""}
-              ${voteCount > 0 ? this._detailGridItem("Vote Count", voteCount.toLocaleString()) : ""}
-              ${Number.isFinite(popularity) && popularity > 0 ? this._detailGridItem("Popularity", popularity.toFixed(1)) : ""}
-            </div>
-          </section>
-
           <!-- TV Episodes -->
           <div id="tv-seasons-slot"></div>
 

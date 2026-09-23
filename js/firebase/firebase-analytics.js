@@ -1,6 +1,5 @@
 // ============================================================================
-// firebase/firebase-analytics.js
-// CineJoy Analytics helpers
+// js/firebase/firebase-analytics.js
 // ============================================================================
 
 import{logEvent}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";

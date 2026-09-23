@@ -1,3 +1,4 @@
+//js\firebase\firebase-index.js
 export*from"./firebase-app.js";
 export*from"./firebase-auth.js";
 export*from"./firebase-firestore.js";

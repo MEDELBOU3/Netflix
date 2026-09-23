@@ -22,7 +22,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/modal.css">
-    <link rel="stylesheet" href="css/live-tv.css">
 </head>
 
 <body class="theme-ambient">
@@ -69,9 +68,38 @@
             <button type="button" class="pill-icon-btn" id="open-search-btn" title="Search (Cmd+K)">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
-            <button type="button" class="pill-icon-btn" id="open-settings-btn" title="Settings">
+           <button type="button" class="pill-icon-btn" id="open-settings-btn" title="Settings">
                 <i class="fa-solid fa-gear"></i>
             </button>
+
+            <!-- Dropdown Menu -->
+            <div class="drop-menu" id="settingsMenu">
+                <ul>
+                    <li data-action="settings">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Settings</span>
+                    </li>
+                    <li data-action="top-users">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Top Users</span>
+                    </li>
+
+                    <li class="menu-separator"></li>
+
+                    <li data-action="history">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Watch History</span>
+                    </li>
+                    <li data-action="notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>Notifications</span>
+                    </li>
+                    <li data-action="reviews">
+                        <i class="fa-solid fa-message"></i>
+                        <span>Reviews</span>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </header>
 
@@ -86,7 +114,8 @@
 
         <!-- Dedicated Settings Page View -->
         <div class="settings-page-container" id="settings-view-container" style="display: none;"></div>
-
+        <!-- Dedicated Top Users Leaderboard View -->
+        <div class="top-users-page-container" id="top-users-view-container" style="display: none;"></div>
         <!-- Dedicated Live TV View -->
         <div class="live-tv-page-container" id="live-tv-view-container" style="display: none;"></div>
 
@@ -239,6 +268,11 @@
         <button type="button" class="mobile-tab" data-page="live-tv">
             <i class="fa-solid fa-tower-broadcast"></i>
             <span>Live TV</span>
+        </button>
+        <!-- Hna: bddelna l-id w zedna data-page="search" -->
+        <button type="button" class="mobile-tab" id="mobile-search-btn" data-page="search" title="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search</span>
         </button>
         <button type="button" class="mobile-tab" data-page="settings">
             <i class="fa-solid fa-gear"></i>

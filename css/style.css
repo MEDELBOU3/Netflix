@@ -363,6 +363,71 @@ a{color:inherit;text-decoration:none}
   z-index: 5;
   margin: 0;
 }
+/* ============================================================================
+   GLASSMORPHIC BACK BUTTON — ULTRA REFINED & CENTERED
+   ============================================================================ */
+.nav-back-btn {
+  width: 44px;
+  height: 44px;
+
+  border-radius: 50%;
+  background: rgba(13, 17, 26, 0.78);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  
+  /* Centering l-fleche 100% f l-west */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.nav-back-btn i {
+  font-size: 0.95rem;
+  line-height: 1;
+  display: block;
+  color: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+/* Hover Effect: Glow + Fleche kay-mshi chwya l-lissr */
+.nav-back-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.32);
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 
+              0 0 18px rgba(255, 255, 255, 0.1);
+}
+
+.nav-back-btn:hover i {
+  transform: translateX(-3px); /* l-fleche kay-nudge l-lissr */
+}
+
+.nav-back-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive l-portable */
+@media (max-width: 768px) {
+  .nav-back-btn {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+  }
+  .nav-back-btn i {
+    font-size: 0.88rem;
+  }
+}
 
 /* --- Bottom Row Icons --- */
 .controls-bottom-bar {
@@ -457,4 +522,49 @@ a{color:inherit;text-decoration:none}
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
+}
+
+.drop-menu {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 8px;
+    position: fixed;
+    min-width: 180px;
+    backdrop-filter: blur(12px);
+}
+
+.drop-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.drop-menu li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.drop-menu li:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.drop-menu li i {
+    width: 17px;
+    height: 17px;
+}
+
+.drop-menu li span {
+    font-size: 14px;
+}
+
+.menu-separator {
+    height: 1px;
+    padding: 0 !important;
+    margin: 6px 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    pointer-events: none;
 }

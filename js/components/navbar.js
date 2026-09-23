@@ -17,6 +17,10 @@ export class Navbar {
     this.logoBtn = document.getElementById("logo-btn");
     this.settingsBtn = document.getElementById("open-settings-btn");
     this.searchBtn = document.getElementById("open-search-btn");
+    this.mobileSearchBtn = document.getElementById("mobile-search-btn");
+
+    // Selector dyal Dropdown Menu HNA f constructor:
+    this.settingsMenu = document.getElementById("settingsMenu");
 
     this.searchModal = document.getElementById("search-modal");
     this.searchInput = document.getElementById("global-search-input");
@@ -42,12 +46,52 @@ export class Navbar {
       }
     });
 
+    // 1. Click 3la Settings f Desktop (kay-toggli l-menu)
     this.settingsBtn?.addEventListener("click", (e) => {
       e.stopPropagation();
-      this.setActiveTab("settings");
+      this.toggleSettingsMenu();
+    });
 
-      if (typeof this.onNavigate === "function") {
-        this.onNavigate("settings");
+    // 2. Click 3la Settings f Mobile Bottom Nav (kay-toggli l-menu)
+    const mobileSettingsBtn = document.querySelector('.mobile-tab[data-page="settings"]');
+    mobileSettingsBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.toggleSettingsMenu();
+    });
+
+    // 3. Click 3la ay Item wst l-Drop Menu
+    this.settingsMenu?.addEventListener("click", (e) => {
+      const item = e.target.closest("li[data-action]");
+      if (!item) return;
+
+      const action = item.dataset.action;
+      this.closeSettingsMenu();
+
+      if (action === "settings") {
+        this.setActiveTab("settings");
+        if (typeof this.onNavigate === "function") this.onNavigate("settings");
+      } else if (action === "top-users") {
+        // HNA: Yddik direct l Top Users view!
+        if (typeof this.onNavigate === "function") this.onNavigate("top-users");
+      } else if (action === "history") {
+        const continueSection = document.getElementById("section-continue-watching");
+        if (continueSection) {
+          continueSection.scrollIntoView({ behavior: "smooth" });
+        }
+      } else {
+        alert(`${item.querySelector("span")?.textContent || action} is coming soon!`);
+      }
+    });
+
+    // 4. Sedd l-menu mnin twrek f ay blassa bera (Click outside)
+    document.addEventListener("click", (e) => {
+      if (this.settingsMenu?.classList.contains("active")) {
+        const clickedInsideMenu = this.settingsMenu.contains(e.target);
+        const clickedTrigger = e.target.closest("#open-settings-btn, .mobile-tab[data-page='settings']");
+        
+        if (!clickedInsideMenu && !clickedTrigger) {
+          this.closeSettingsMenu();
+        }
       }
     });
 
@@ -69,6 +113,7 @@ export class Navbar {
     });
 
     this.searchBtn?.addEventListener("click", () => this.openSearch());
+    this.mobileSearchBtn?.addEventListener("click", () => this.openSearch());
 
     document.addEventListener("keydown", (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -79,7 +124,6 @@ export class Navbar {
 
     this.searchInput?.addEventListener("input", (e) => {
       clearTimeout(this.debounceTimer);
-
       const query = e.target.value.trim();
 
       if (!query) {
@@ -90,18 +134,13 @@ export class Navbar {
         return;
       }
 
-      this.debounceTimer = setTimeout(
-        () => this._performSearch(query),
-        300,
-      );
+      this.debounceTimer = setTimeout(() => this._performSearch(query), 300);
     });
 
     this.searchClearBtn?.addEventListener("click", () => {
       if (this.searchInput) this.searchInput.value = "";
-
       if (this.searchResultsList) {
-        this.searchResultsList.innerHTML =
-          `<div class="search-idle-hint">Search cleared.</div>`;
+        this.searchResultsList.innerHTML = `<div class="search-idle-hint">Search cleared.</div>`;
       }
     });
 
@@ -115,13 +154,22 @@ export class Navbar {
     });
 
     const mobileNav = document.getElementById("mobile-bottom-nav");
-
     mobileNav?.addEventListener("click", (e) => {
       const tab = e.target.closest(".mobile-tab");
       if (!tab) return;
 
       const page = tab.dataset.page;
       if (!page) return;
+
+      if (page === "search") {
+        this.openSearch();
+        return;
+      }
+
+      // Hna: ila kan click 3la settings f l-mobile, ma y-beddelsh l-tab 7it ghadi y-ftah l-menu
+      if (page === "settings") {
+        return;
+      }
 
       this.setActiveTab(page);
 
@@ -142,6 +190,11 @@ export class Navbar {
       item.classList.toggle("active", item.dataset.page === page);
     });
 
+    const mobileNav = document.getElementById("mobile-bottom-nav");
+    mobileNav?.querySelectorAll(".mobile-tab").forEach((item) => {
+      item.classList.toggle("active", item.dataset.page === page);
+    });
+
     if (this.settingsBtn) {
       this.settingsBtn.classList.toggle("active", page === "settings");
     }
@@ -151,6 +204,15 @@ export class Navbar {
     }
   }
 
+  toggleSettingsMenu() {
+    if (!this.settingsMenu) return;
+    this.settingsMenu.classList.toggle("active");
+  }
+
+  closeSettingsMenu() {
+    if (!this.settingsMenu) return;
+    this.settingsMenu.classList.remove("active");
+  }
   openSearch() {
     if (!this.searchModal) return;
 
@@ -160,7 +222,7 @@ export class Navbar {
       this.searchModal.showModal();
     }
 
-    setTimeout(() => this.searchInput?.focus(), 50);
+    setTimeout(() => this.searchInput?.focus(), 100);
   }
 
   closeSearch() {

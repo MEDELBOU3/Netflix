@@ -1,11 +1,12 @@
 // ============================================================================
 // js/components/playerView.js
-// Cinema Player — Robust Server Switcher + VidKing Integration
+// Cinema Player — Robust Server Switcher + CineSrc & VidKing Integration
 // ============================================================================
 
 import { storageService } from "../utils/storage.js";
 import { escapeHtml } from "../utils/dom.js";
 import { getUserSettings } from "./settingsView.js";
+import { trackUserActivity } from "../firebase/firebase-activity.js";
 
 export class PlayerView {
   constructor(containerId, onBack) {
@@ -14,19 +15,68 @@ export class PlayerView {
     this.activeMedia = null;
     this.hlsInstance = null;
     this._vidKingMessageHandler = null;
+    this._cineSrcMessageHandler = null;
     this._loadToken = 0;
 
     const settings = getUserSettings() || {};
     this.currentSource = this._normalizeServerId(
-      settings.primaryServer || "vidsrc",
+      settings.primaryServer || "cinesrc",
     );
   }
 
   static SERVERS = [
     {
+      id: "cinesrc",
+      name: "CineSrc",
+      label: "Server 1",
+      icon: "fa-film",
+      quality: "FHD - 4K",
+      build: (id, isTv, season, episode, settings = {}) => {
+        const base = isTv
+          ? `https://cinesrc.st/embed/tv/${encodeURIComponent(id)}`
+          : `https://cinesrc.st/embed/movie/${encodeURIComponent(id)}`;
+
+        const url = new URL(base);
+
+        if (isTv) {
+          url.searchParams.set("s", String(season || 1));
+          url.searchParams.set("e", String(episode || 1));
+          url.searchParams.set("autonext", settings.autoplayNext !== false ? "true" : "false");
+        }
+
+        url.searchParams.set("autoplay", "true");
+        url.searchParams.set("color", "#e50914");
+        url.searchParams.set("back", "close");
+        url.searchParams.set("autoskip", "true");
+
+        // Apply chosen sub-server node (Lisbon, Nebula, Wave, etc.)
+        if (settings.cinesrcServer && settings.cinesrcServer !== "auto") {
+          url.searchParams.set("lastserver", settings.cinesrcServer.toLowerCase());
+        }
+
+        // Apply prioritize setting
+        if (settings.cinesrcPrioritize !== false) {
+          url.searchParams.set("prioritize", "true");
+        }
+
+        // Apply preferred quality (1080, 720, etc.)
+        if (settings.videoQuality) {
+          const cleanQuality = String(settings.videoQuality).replace(/[^0-9]/g, "");
+          if (cleanQuality) url.searchParams.set("quality", cleanQuality);
+        }
+
+        // Apply Febbox token if set
+        if (settings.febboxToken) {
+          url.searchParams.set("febbox", settings.febboxToken.trim());
+        }
+
+        return url.toString();
+      },
+    },
+    {
       id: "vidsrc",
       name: "VidSrc",
-      label: "Server 1",
+      label: "Server 2",
       icon: "fa-server",
       quality: "4K",
       build: (id, isTv, season, episode) =>
@@ -37,10 +87,10 @@ export class PlayerView {
     {
       id: "vidKing",
       name: "VidKing",
-      label: "Server 2",
+      label: "Server 3",
       icon: "fa-server",
       quality: "FHD - 4K",
-      build: (id, isTv, season, episode) => {
+      build: (id, isTv, season, episode, settings = {}) => {
         const path = isTv
           ? `/embed/tv/${encodeURIComponent(id)}/${encodeURIComponent(season)}/${encodeURIComponent(episode)}`
           : `/embed/movie/${encodeURIComponent(id)}`;
@@ -50,7 +100,7 @@ export class PlayerView {
         params.set("autoPlay", "true");
 
         if (isTv) {
-          params.set("nextEpisode", "true");
+          params.set("nextEpisode", settings.autoplayNext !== false ? "true" : "false");
           params.set("episodeSelector", "true");
         }
 
@@ -60,7 +110,7 @@ export class PlayerView {
     {
       id: "vidrock",
       name: "Vidrock",
-      label: "Server 3",
+      label: "Server 4",
       icon: "fa-server",
       quality: "FHD - 4K",
       logo: "https://vidrock.net/Rock.png",
@@ -77,12 +127,13 @@ export class PlayerView {
     {
       id: "vidfast",
       name: "VidFast",
-      label: "Server 4",
+      label: "Server 5",
       icon: "fa-server",
       quality: "FHD - 4K",
       build: (id, isTv, season, episode) => {
-        // VidFast endpoint needs to be confirmed from its own documentation.
-        return "";
+        return isTv
+          ? `https://vidfast.co/embed/tv/${encodeURIComponent(id)}/${encodeURIComponent(season)}/${encodeURIComponent(episode)}`
+          : `https://vidfast.co/embed/movie/${encodeURIComponent(id)}`;
       },
     },
   ];
@@ -120,11 +171,11 @@ export class PlayerView {
 
     this.activeMedia = { ...media };
     this._destroyHls();
-    this._removeVidKingListener();
+    this._removeEventListeners();
 
     const settings = getUserSettings() || {};
     const preferredServer = this._normalizeServerId(
-      settings.primaryServer || this.currentSource || "vidsrc",
+      settings.primaryServer || this.currentSource || "cinesrc",
     );
 
     this.currentSource = preferredServer;
@@ -169,7 +220,7 @@ export class PlayerView {
             ${
               isTv
                 ? `
-                  <span class="player-ep-tag">
+                  <span class="player-ep-tag" id="player-ep-tag">
                     Season ${season} • Episode ${episode}
                     ${epTitle ? `— ${escapeHtml(epTitle)}` : ""}
                   </span>
@@ -233,7 +284,6 @@ export class PlayerView {
       .getElementById("player-back-btn")
       ?.addEventListener("click", () => {
         const previousMedia = this.activeMedia ? { ...this.activeMedia } : null;
-
         this.hide(false);
 
         if (typeof this.onBack === "function") {
@@ -258,8 +308,6 @@ export class PlayerView {
 
       const media = this.activeMedia;
       if (!media) return;
-
-      const isTv = media.media_type === "tv" || media.media_type === "show";
 
       await this._loadStream(
         media,
@@ -304,12 +352,13 @@ export class PlayerView {
     if (!frame || !media?.id) return;
 
     const loadToken = ++this._loadToken;
+    const settings = getUserSettings() || {};
     const server = this._getServer(this.currentSource);
     const isTv = media.media_type === "tv" || media.media_type === "show";
     const title = media.title || media.name || "Untitled";
 
     this._destroyHls();
-    this._removeVidKingListener();
+    this._removeEventListeners();
 
     frame.innerHTML = `
       <div class="player-loading-spinner">
@@ -320,15 +369,16 @@ export class PlayerView {
       </div>
     `;
 
+    // Build URL passing user settings
     const embedUrl = server.build(
       media.id,
       isTv,
       Number(season) || 1,
       Number(episode) || 1,
+      settings,
     );
 
     const iframe = document.createElement("iframe");
-
     iframe.className = "cinema-iframe";
     iframe.title = title;
     iframe.src = embedUrl;
@@ -336,9 +386,16 @@ export class PlayerView {
     iframe.allowFullscreen = true;
     iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
 
+    // Ad/Popup interception through sandbox if enabled in settings
+    if (settings.blockPopups !== false) {
+      iframe.setAttribute(
+        "sandbox",
+        "allow-scripts allow-same-origin allow-forms allow-presentation",
+      );
+    }
+
     iframe.addEventListener("load", () => {
       if (loadToken !== this._loadToken) return;
-
       const spinner = frame.querySelector(".player-loading-spinner");
       if (spinner) {
         spinner.remove();
@@ -347,18 +404,145 @@ export class PlayerView {
 
     iframe.addEventListener("error", () => {
       if (loadToken !== this._loadToken) return;
-      this._showPlayerError(frame, server, "The player could not be loaded.");
+      this._handleStreamFailure(frame, server, "The stream could not be loaded.");
     });
 
     frame.replaceChildren(iframe);
 
+    // Bind event listeners for sources
     if (server.id === "vidKing") {
       this._bindVidKingEvents(media);
+    } else if (server.id === "cinesrc") {
+      this._bindCineSrcEvents(media);
     }
 
     this._saveInitialProgress(media, season, episode);
 
     return embedUrl;
+  }
+
+  _handleStreamFailure(frame, server, message) {
+    const settings = getUserSettings() || {};
+
+    // Auto-fallback to next server if enabled
+    if (settings.autoFallback) {
+      const currentIndex = PlayerView.SERVERS.findIndex(
+        (s) => s.id === this.currentSource,
+      );
+      const nextIndex = (currentIndex + 1) % PlayerView.SERVERS.length;
+
+      // Only switch if there's another server to try
+      if (nextIndex !== currentIndex) {
+        this.currentSource = PlayerView.SERVERS[nextIndex].id;
+
+        const tabs = document.getElementById("player-server-tabs");
+        tabs?.querySelectorAll(".server-tab-btn").forEach((button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.source === this.currentSource,
+          );
+        });
+
+        if (this.activeMedia) {
+          this._loadStream(
+            this.activeMedia,
+            Number(this.activeMedia.selectedSeason) || 1,
+            Number(this.activeMedia.selectedEpisode) || 1,
+          );
+          return;
+        }
+      }
+    }
+
+    this._showPlayerError(frame, server, message);
+  }
+
+  _bindCineSrcEvents(media) {
+    this._removeCineSrcListener();
+
+    this._cineSrcMessageHandler = (event) => {
+      if (event.origin !== "https://cinesrc.st") return;
+
+      const { type, ...data } = event.data || {};
+      const isTv = media.media_type === "tv" || media.media_type === "show";
+
+      switch (type) {
+        case "cinesrc:timeupdate": {
+          const currentTime = Number(data.currentTime || 0);
+          const duration = Number(data.duration || 0);
+
+          if (currentTime > 0 && duration > 0) {
+            storageService.saveWatchProgress(
+              this.activeMedia || media,
+              currentTime,
+              duration,
+              Number(this.activeMedia?.selectedSeason ?? media.selectedSeason) || 1,
+              Number(this.activeMedia?.selectedEpisode ?? media.selectedEpisode) || 1,
+            );
+          }
+          break;
+        }
+
+        case "cinesrc:ended": {
+          if (isTv) {
+            this._showEpisodeFinished(this.activeMedia || media);
+          }
+          break;
+        }
+
+        case "cinesrc:nextepisode": {
+          const nextSeason = Number(data.season) || 1;
+          const nextEpisode = Number(data.episode) || 1;
+
+          if (this.activeMedia) {
+            this.activeMedia.selectedSeason = nextSeason;
+            this.activeMedia.selectedEpisode = nextEpisode;
+          }
+
+          this._updateEpisodeUI(nextSeason, nextEpisode);
+
+          if (!data.internalNavigation) {
+            this.render({
+              ...this.activeMedia,
+              selectedSeason: nextSeason,
+              selectedEpisode: nextEpisode,
+            });
+          }
+          break;
+        }
+
+        case "cinesrc:sourceused": {
+          if (data.sourceId) {
+            console.log(`[CineSrc] Connected to node: ${data.sourceId}`);
+          }
+          break;
+        }
+
+        case "cinesrc:close": {
+          const previousMedia = this.activeMedia ? { ...this.activeMedia } : null;
+          this.hide(false);
+          if (typeof this.onBack === "function") {
+            this.onBack(previousMedia);
+          }
+          break;
+        }
+
+        case "cinesrc:error": {
+          const frame = document.getElementById("cinema-video-frame");
+          const server = this._getServer(this.currentSource);
+          if (frame) {
+            this._handleStreamFailure(
+              frame,
+              server,
+              data.error || "The video stream could not be loaded.",
+            );
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("message", this._cineSrcMessageHandler);
   }
 
   _bindVidKingEvents(media) {
@@ -369,7 +553,6 @@ export class PlayerView {
       if (!message) return;
 
       const type = message.type || message.event || message.name || "";
-
       const data = message.data || message;
 
       if (
@@ -385,44 +568,43 @@ export class PlayerView {
         const currentTime = Number(
           data.currentTime ?? data.time ?? data.position ?? 0,
         );
-
         const duration = Number(data.duration ?? data.totalTime ?? 0);
 
         if (currentTime > 0 && duration > 0) {
-          const isTv = media.media_type === "tv" || media.media_type === "show";
-
           storageService.saveWatchProgress(
-            media,
+            this.activeMedia || media,
             currentTime,
             duration,
-            Number(media.selectedSeason) || 1,
-            Number(media.selectedEpisode) || 1,
+            Number(this.activeMedia?.selectedSeason ?? media.selectedSeason) || 1,
+            Number(this.activeMedia?.selectedEpisode ?? media.selectedEpisode) || 1,
           );
-
-          if (isTv && playerEvent === "ended") {
-            this._showEpisodeFinished(media);
-          }
         }
       }
 
       if (playerEvent === "ended") {
-        this._showEpisodeFinished(media);
+        this._showEpisodeFinished(this.activeMedia || media);
       }
     };
 
     window.addEventListener("message", this._vidKingMessageHandler);
   }
 
+  _updateEpisodeUI(season, episode) {
+    const epTag = document.getElementById("player-ep-tag");
+    if (epTag) {
+      epTag.textContent = `Season ${season} • Episode ${episode}`;
+    }
+
+    const prevBtn = document.getElementById("btn-prev-ep");
+    if (prevBtn) {
+      prevBtn.disabled = episode <= 1;
+    }
+  }
+
   _parsePlayerMessage(data) {
     if (!data) return null;
-
-    if (typeof data === "object") {
-      return data;
-    }
-
-    if (typeof data !== "string") {
-      return null;
-    }
+    if (typeof data === "object") return data;
+    if (typeof data !== "string") return null;
 
     try {
       return JSON.parse(data);
@@ -432,10 +614,7 @@ export class PlayerView {
   }
 
   _saveInitialProgress(media, season, episode) {
-    const isTv = media.media_type === "tv" || media.media_type === "show";
-
     const saved = storageService.getWatchProgress?.(media);
-
     if (saved && Number(saved.progress) > 0) {
       return;
     }
@@ -451,13 +630,22 @@ export class PlayerView {
 
   _showEpisodeFinished(media) {
     const isTv = media.media_type === "tv" || media.media_type === "show";
-
     if (!isTv) return;
 
-    const frame = document.getElementById("cinema-video-frame");
-    if (!frame) return;
+    // 🌟 XP Tracking: Attribuer +50 XP 7it kmml l-episode
+    try {
+      trackUserActivity("WATCH_COMPLETED", {
+        id: media.id,
+        title: media.title || media.name || "Episode",
+        season: Number(media.selectedSeason) || 1,
+        episode: Number(media.selectedEpisode) || 1,
+      });
+    } catch (e) {
+      console.warn("[PlayerView] XP track error:", e);
+    }
 
-    if (frame.querySelector(".episode-finished-overlay")) return;
+    const frame = document.getElementById("cinema-video-frame");
+    if (!frame || frame.querySelector(".episode-finished-overlay")) return;
 
     const overlay = document.createElement("div");
     overlay.className = "episode-finished-overlay";
@@ -534,7 +722,6 @@ export class PlayerView {
         this.currentSource = next.id;
 
         const tabs = document.getElementById("player-server-tabs");
-
         tabs?.querySelectorAll(".server-tab-btn").forEach((button) => {
           button.classList.toggle(
             "active",
@@ -553,12 +740,21 @@ export class PlayerView {
       });
   }
 
+  _removeEventListeners() {
+    this._removeVidKingListener();
+    this._removeCineSrcListener();
+  }
+
   _removeVidKingListener() {
     if (!this._vidKingMessageHandler) return;
-
     window.removeEventListener("message", this._vidKingMessageHandler);
-
     this._vidKingMessageHandler = null;
+  }
+
+  _removeCineSrcListener() {
+    if (!this._cineSrcMessageHandler) return;
+    window.removeEventListener("message", this._cineSrcMessageHandler);
+    this._cineSrcMessageHandler = null;
   }
 
   _destroyHls() {
@@ -573,10 +769,9 @@ export class PlayerView {
   hide(clearMedia = true) {
     this._loadToken++;
     this._destroyHls();
-    this._removeVidKingListener();
+    this._removeEventListeners();
 
     const container = document.getElementById(this.containerId);
-
     if (container) {
       container.style.display = "none";
       container.innerHTML = "";
